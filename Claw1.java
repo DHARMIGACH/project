@@ -1,4 +1,4 @@
-class Claw1 {
+class Claw {
     String name;
     int noOfClaws;
     String color = "brown";
