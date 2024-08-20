@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solo Travel Guide</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e8f5e9; /* Light green background */
+            color: #2e7d32; /* Dark green text */
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        header {
+            background-color: #4caf50; /* Green header */
+            color: white;
+            padding: 15px;
+        }
+        .container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: left; /* Align content to the left within the container */
+        }
+        .places, .suggestions, .reviews, .registration {
+            margin-bottom: 20px;
+        }
+        .places img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .suggestion-item, .review-item, .registration-item {
+            border: 1px solid #2e7d32;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            text-align: left; /* Align text to the left */
+        }
+        .suggestion-item button, .review-item button {
+            background-color: #f44336; /* Red button */
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .suggestion-item button:hover, .review-item button:hover {
+            background-color: #d32f2f; /* Darker red on hover */
+        }
+        .review-item img {
+            max-width: 200px;
+            margin-top: 10px;
+        }
+        .language-selection {
+            margin-top: 20px;
+        }
+        .language-selection select, .language-selection button {
+            padding: 10px;
+            margin-top: 10px;
+            display: block;
+            margin: 0 auto;
+        }
+        .registration table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .registration th, .registration td {
+            border: 1px solid #2e7d32;
+            padding: 10px;
+        }
+        .registration th {
+            background-color: #4caf50;
+            color: white;
+        }
+        .like-count {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Solo Travel Guide</h1>
+    </header>
+
+    <div class="container">
+        <div class="places">
+            <h2>Choose Your Day Trip Destination</h2>
+            <select id="placeSelect" onchange="showItinerary(this.value)">
+                <option value="">Select a place</option>
+                <option value="bannerghatta">Bannerghatta National Park</option>
+                <option value="chikkaballapur">Chikkaballapur</option>
+                <option value="manchanabele">Manchanabele</option>
+                <option value="kokkareBellur">Kokkare Bellur</option>
+                <option value="devarayanadurga">Devarayanadurga</option>
+            </select>
+            <div id="itinerary" style="display: none;"></div>
+        </div>
+
+        <div class="language-selection">
+            <h2>Select Your Language for Group Communication</h2>
+            <select id="languageSelect">
+                <option value="english">English</option>
+                <option value="tamil">Tamil</option>
+                <option value="hindi">Hindi</option>
+                <option value="kannada">Kannada</option>
+                <!-- Add more languages as needed -->
+            </select>
+            <button onclick="joinGroup()">Join Group</button>
+        </div>
+
+        <div class="suggestions">
+            <h2>Suggestions</h2>
+            <textarea id="suggestionBox" rows="3" cols="30" placeholder="Enter your suggestion..."></textarea><br>
+            <button onclick="submitSuggestion()">Submit Suggestion</button>
+            <div id="suggestionsList"></div>
+        </div>
+
+        <div class="reviews">
+            <h2>Reviews</h2>
+            <textarea id="reviewTextBox" rows="3" cols="30" placeholder="Enter your review..."></textarea><br>
+            <input type="file" id="reviewImage" accept="image/*"><br>
+            <button onclick="submitReview()">Submit Review</button>
+            <div id="reviewsList"></div>
+        </div>
+
+        <div class="registration">
+            <h2>Travel Registration</h2>
+            <form id="registrationForm" onsubmit="registerUser(event)">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required><br>
+                <label for="contact">Contact:</label>
+                <input type="text" id="contact" required><br>
+                <button type="submit">Register</button>
+            </form>
+            <h3>Registered Users</h3>
+            <table id="registrationTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Contact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Registration details will be added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const itineraries = {
+            bannerghatta: {
+                image: 'https://via.placeholder.com/800x400?text=Bannerghatta+National+Park',
+                itinerary: `
+                    8:00 AM: Departure from Bangalore<br>
+                    9:00 AM: Reach Bannerghatta, visit the zoo<br>
+                    12:00 PM: Lunch<br>
+                    2:00 PM: Explore the butterfly park<br>
+                    4:00 PM: Visit the safari<br>
+                    6:00 PM: Start journey back to Bangalore<br>
+                    8:00 PM: Reach Bangalore
+                `
+            },
+            chikkaballapur: {
+                image: 'https://via.placeholder.com/800x400?text=Chikkaballapur',
+                itinerary: `
+                    6:00 AM: Departure from Bangalore<br>
+                    8:00 AM: Reach Chikkaballapur, explore local attractions<br>
+                    11:00 AM: Visit Bhoga Nandeeshwara Temple<br>
+                    1:00 PM: Lunch<br>
+                    3:00 PM: Continue exploring<br>
+                    5:00 PM: Start journey back to Bangalore<br>
+                    7:00 PM: Reach Bangalore
+                `
+            },
+            manchanabele: {
+                image: 'https://via.placeholder.com/800x400?text=Manchanabele',
+                itinerary: `
+                    6:00 AM: Departure from Bangalore<br>
+                    8:00 AM: Reach Manchanabele, explore the dam<br>
+                    11:00 AM: Enjoy water activities<br>
+                    1:00 PM: Lunch<br>
+                    3:00 PM: Continue exploring<br>
+                    5:00 PM: Start journey back to Bangalore<br>
+                    7:00 PM: Reach Bangalore
+                `
+            },
+            kokkareBellur: {
+                image: 'https://via.placeholder.com/800x400?text=Kokkare+Bellur',
+                itinerary: `
+                    6:00 AM: Departure from Bangalore<br>
+                    8:00 AM: Reach Kokkare Bellur, bird watching<br>
+                    11:00 AM: Explore local bird species<br>
+                    1:00 PM: Lunch<br>
+                    3:00 PM: Continue bird watching<br>
+                    5:00 PM: Start journey back to Bangalore<br>
+                    7:00 PM: Reach Bangalore
+                `
+            },
+            devarayanadurga: {
+                image: 'https://via.placeholder.com/800x400?text=Devarayanadurga',
+                itinerary: `
+                    6:00 AM: Departure from Bangalore<br>
+                    8:00 AM: Reach Devarayanadurga, start trek<br>
+                    11:00 AM: Enjoy the scenic views<br>
+                    1:00 PM: Lunch<br>
+                    3:00 PM: Explore nearby temples<br>
+                    5:00 PM: Start journey back to Bangalore<br>
+                    7:00 PM: Reach Bangalore
+                `
+            }
+        };
+
+        function showItinerary(place) {
+            const itineraryDiv = document.getElementById('itinerary');
+            const placeData = itineraries[place];
+            if (placeData) {
+                itineraryDiv.innerHTML = `
+                    <img src="${placeData.image}" alt="${place}"><br>
+                    ${placeData.itinerary}
+                `;
+            } else {
+                itineraryDiv.innerHTML = 'Itinerary not available for this place.';
+            }
+            itineraryDiv.style.display = 'block';
+        }
+
+        function submitSuggestion() {
+            const suggestionBox = document.getElementById('suggestionBox');
+            const suggestionsList = document.getElementById('suggestionsList');
+            const suggestion = suggestionBox.value;
+            if (suggestion) {
+                const div = document.createElement('div');
+                div.classList.add('suggestion-item');
+                div.innerHTML = `
+                    ${suggestion}
+                    <button onclick="likeSuggestion(this)">Like</button>
+                    <button onclick="deleteSuggestion(this)">Delete</button>
+                    <span class="like-count">0 likes</span>
+                `;
+                suggestionsList.appendChild(div);
+                suggestionBox.value = '';
+            }
+        }
+
+        function likeSuggestion(button) {
+            const suggestionItem = button.parentElement;
+            const likes = suggestionItem.querySelector('.like-count');
+            const currentLikes = parseInt(likes.textContent.split(' ')[0]);
+            likes.textContent = `${currentLikes + 1} likes`;
+        }
+
+        function deleteSuggestion(button) {
+            button.parentElement.remove();
+        }
+
+        function submitReview() {
+            const reviewTextBox = document.getElementById('reviewTextBox');
+            const reviewImage = document.getElementById('reviewImage');
+            const reviewsList = document.getElementById('reviewsList');
+            const reviewText = reviewTextBox.value;
+            const imageFile = reviewImage.files[0];
+
+            if (reviewText || imageFile) {
+                const div = document.createElement('div');
+                div.classList.add('review-item');
+
+                div.innerHTML = `
+                    ${reviewText}
+                    ${imageFile ? `<img src="${URL.createObjectURL(imageFile)}" alt="Review Image">` : ''}
+                    <button onclick="deleteReview(this)">Delete</button>
+                `;
+                reviewsList.appendChild(div);
+                reviewTextBox.value = '';
+                reviewImage.value = ''; // Clear the file input
+            }
+        }
+
+        function deleteReview(button) {
+            button.parentElement.remove();
+        }
+
+        function registerUser(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const contact = document.getElementById('contact').value;
+            const registrationTable = document.getElementById('registrationTable').getElementsByTagName('tbody')[0];
+
+            if (name && contact) {
+                const row = registrationTable.insertRow();
+                row.insertCell(0).textContent = name;
+                row.insertCell(1).textContent = contact;
+
+                // Save to localStorage
+                saveRegistrationData();
+
+                document.getElementById('registrationForm').reset();
+            }
+        }
+
+        function saveRegistrationData() {
+            const registrationTable = document.getElementById('registrationTable').getElementsByTagName('tbody')[0];
+            const rows = registrationTable.getElementsByTagName('tr');
+            const data = [];
+
+            for (const row of rows) {
+                const cells = row.getElementsByTagName('td');
+                data.push({
+                    name: cells[0].textContent,
+                    contact: cells[1].textContent
+                });
+            }
+
+            localStorage.setItem('registrationData', JSON.stringify(data));
+        }
+
+        function loadRegistrationData() {
+            const data = JSON.parse(localStorage.getItem('registrationData')) || [];
+            const registrationTable = document.getElementById('registrationTable').getElementsByTagName('tbody')[0];
+
+            for (const item of data) {
+                const row = registrationTable.insertRow();
+                row.insertCell(0).textContent = item.name;
+                row.insertCell(1).textContent = item.contact;
+            }
+        }
+
+        function joinGroup() {
+            const language = document.getElementById('languageSelect').value;
+            alert(`Joined the group for ${language} communication.`);
+        }
+
+        // Load registration data on page load
+        window.onload = loadRegistrationData;
+        delete loadRegistrationData();
+    </script>
+</body>
+</html>
